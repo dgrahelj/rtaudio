@@ -10187,11 +10187,10 @@ void RtApi :: convertBuffer( char *outBuffer, char *inBuffer, ConvertInfo &info 
     }
     else if (info.inFormat == RTAUDIO_SINT24) {
       Int24 *in = (Int24 *)inBuffer;
-      scale = 1.0 / 8388607.5;
+      scale = 1.0 / 8388608.;
       for (unsigned int i=0; i<stream_.bufferSize; i++) {
         for (j=0; j<info.channels; j++) {
           out[info.outOffset[j]] = (Float64) (in[info.inOffset[j]].asInt());
-          out[info.outOffset[j]] += 0.5;
           out[info.outOffset[j]] *= scale;
         }
         in += info.inJump;
@@ -10265,11 +10264,10 @@ void RtApi :: convertBuffer( char *outBuffer, char *inBuffer, ConvertInfo &info 
     }
     else if (info.inFormat == RTAUDIO_SINT24) {
       Int24 *in = (Int24 *)inBuffer;
-      scale = (Float32) ( 1.0 / 8388607.5 );
+      scale = (Float32) ( 1.0 / 8388608. );
       for (unsigned int i=0; i<stream_.bufferSize; i++) {
         for (j=0; j<info.channels; j++) {
           out[info.outOffset[j]] = (Float32) (in[info.inOffset[j]].asInt());
-          out[info.outOffset[j]] += 0.5;
           out[info.outOffset[j]] *= scale;
         }
         in += info.inJump;
@@ -10426,9 +10424,12 @@ void RtApi :: convertBuffer( char *outBuffer, char *inBuffer, ConvertInfo &info 
     }
     else if (info.inFormat == RTAUDIO_FLOAT32) {
       Float32 *in = (Float32 *)inBuffer;
+      Int32 temp;
       for (unsigned int i=0; i<stream_.bufferSize; i++) {
         for (j=0; j<info.channels; j++) {
-          out[info.outOffset[j]] = (Int32) (in[info.inOffset[j]] * 8388607.5 - 0.5);
+          temp = in[info.inOffset[j]] * 8388608.;
+          std::clamp(temp, -8388608, 8388607);
+          out[info.outOffset[j]] = temp;
         }
         in += info.inJump;
         out += info.outJump;
@@ -10436,9 +10437,12 @@ void RtApi :: convertBuffer( char *outBuffer, char *inBuffer, ConvertInfo &info 
     }
     else if (info.inFormat == RTAUDIO_FLOAT64) {
       Float64 *in = (Float64 *)inBuffer;
+      Int32 temp;
       for (unsigned int i=0; i<stream_.bufferSize; i++) {
         for (j=0; j<info.channels; j++) {
-          out[info.outOffset[j]] = (Int32) (in[info.inOffset[j]] * 8388607.5 - 0.5);
+          temp = in[info.inOffset[j]] * 8388608.;
+          std::clamp(temp, -8388608, 8388607);
+          out[info.outOffset[j]] = temp;
         }
         in += info.inJump;
         out += info.outJump;
